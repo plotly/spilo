@@ -65,6 +65,12 @@ ENV POSTGIS_VERSION=3.6 \
 WORKDIR /builddeps
 RUN bash base.sh
 
+# CVE-2026-111497: base.sh does not upgrade packages that are already installed
+RUN apt-get update && \
+    apt-get install -y --only-upgrade libbrotli1 brotli && \
+    dpkg --compare-versions "$(dpkg-query -W -f='${Version}' libbrotli1)" ge 1.0.9-2ubuntu0.1 && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install wal-g
 COPY --from=dependencies-builder /builddeps/wal-g /usr/local/bin/
 
