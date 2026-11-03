@@ -71,14 +71,9 @@ RUN apt-get update && \
     dpkg --compare-versions "$(dpkg-query -W -f='${Version}' libbrotli1)" ge 1.0.9-2ubuntu0.1 && \
     rm -rf /var/lib/apt/lists/*
 
-# CVE-2026-114406: distrust the eMudhra roots whose intermediate keys leaked.
-# Ubuntu's fixed ca-certificates drops only G3, so C1 and C3 are disabled here.
+# CVE-2026-114406: the fixed ca-certificates drops emSign ECC Root CA - G3 and Comodo AAA
 RUN apt-get update && \
     apt-get install -y --only-upgrade ca-certificates && \
-    sed -i -E 's#^mozilla/emSign_(Root_CA_-_C1|ECC_Root_CA_-_C3|ECC_Root_CA_-_G3)\.crt$#!&#' /etc/ca-certificates.conf && \
-    update-ca-certificates --fresh && \
-    test -e /etc/ssl/certs/emSign_Root_CA_-_G1.pem && \
-    ! ls /etc/ssl/certs | grep -qE 'emSign_(Root_CA_-_C1|ECC_Root_CA_-_C3|ECC_Root_CA_-_G3)' && \
     rm -rf /var/lib/apt/lists/*
 
 # Install wal-g
