@@ -18,7 +18,8 @@ FROM $BASE_IMAGE as dependencies-builder
 
 ARG DEMO
 
-ENV WALG_REF=22eee6b2e0a4ca9e5dcb5e73d8e6aca98262db73
+# 67cb69a4 moves the bundled brotli to v1.2.1 (CVE-2026-111497).
+ENV WALG_REF=67cb69a43286dbad521206f02b8e0055d31e32f2
 
 COPY build_scripts/dependencies.sh /builddeps/
 
