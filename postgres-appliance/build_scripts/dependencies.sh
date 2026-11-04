@@ -43,7 +43,7 @@ git checkout "$WALG_REF"
 git submodule update --init --recursive
 # MAKEFLAGS is exported with -j above; clear it here so the brotli/cmake step
 # in `make deps` builds serially (parallel build races and fails under emulation).
-MAKEFLAGS= USE_BROTLI=1 make deps
-MAKEFLAGS= USE_BROTLI=1 make pg_build
+MAKEFLAGS='' USE_BROTLI=1 make deps
+MAKEFLAGS='' USE_BROTLI=1 make pg_build
 cp main/pg/wal-g /builddeps/wal-g/wal-g
 cd /
