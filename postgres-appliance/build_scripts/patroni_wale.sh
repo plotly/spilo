@@ -50,6 +50,8 @@ else
 fi
 
 pip3 install "patroni[kubernetes$EXTRAS]==$PATRONIVERSION"
+# CVE-2026-114406: 2026.10.23 is the first certifi without the compromised eMudhra roots
+pip3 install --upgrade 'certifi>=2026.10.23'
 
 for d in /usr/local/lib/python3.10 /usr/lib/python3; do
     cd $d/dist-packages

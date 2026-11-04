@@ -18,7 +18,8 @@ FROM $BASE_IMAGE as dependencies-builder
 
 ARG DEMO
 
-ENV WALG_REF=22eee6b2e0a4ca9e5dcb5e73d8e6aca98262db73
+# 67cb69a4 moves the bundled brotli to v1.2.1 (CVE-2026-111497).
+ENV WALG_REF=67cb69a43286dbad521206f02b8e0055d31e32f2
 
 COPY build_scripts/dependencies.sh /builddeps/
 
@@ -52,7 +53,7 @@ ARG WITH_PERL=false
 ARG DEB_PG_SUPPORTED_VERSIONS="$PGOLDVERSIONS $PGVERSION"
 
 # Install PostgreSQL, extensions and contribs
-ENV POSTGIS_VERSION=3.6 \
+ENV POSTGIS_VERSION=3.7 \
     BG_MON_COMMIT=7f5887218790b263fe3f42f85f4ddc9c8400b154 \
     PG_AUTH_MON_COMMIT=fe099eef7662cbc85b0b79191f47f52f1e96b779 \
     PG_MON_COMMIT=ead1de70794ed62ca1e34d4022f6165ff36e9a91 \
@@ -64,6 +65,17 @@ ENV POSTGIS_VERSION=3.6 \
 
 WORKDIR /builddeps
 RUN bash base.sh
+
+# CVE-2026-111497: base.sh does not upgrade packages that are already installed
+RUN apt-get update && \
+    apt-get install -y --only-upgrade libbrotli1 brotli && \
+    dpkg --compare-versions "$(dpkg-query -W -f='${Version}' libbrotli1)" ge 1.0.9-2ubuntu0.1 && \
+    rm -rf /var/lib/apt/lists/*
+
+# CVE-2026-114406: the fixed ca-certificates drops emSign ECC Root CA - G3 and Comodo AAA
+RUN apt-get update && \
+    apt-get install -y --only-upgrade ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install wal-g
 COPY --from=dependencies-builder /builddeps/wal-g /usr/local/bin/
